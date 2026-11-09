@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WA Blast Acak</title>
+<style>
+:root{--bg:#f6f7f5;--card:#fff;--tx:#1b2420;--mut:#6b7872;--bd:#dde3df;--ac:#128c5a;--act:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--card:#1b2420;--tx:#e8eeea;--mut:#9aa8a1;--bd:#2c3833;--ac:#34c98a;--act:#06231a;--warn:#f0b35a}}
+:root[data-theme="dark"]{--bg:#121715;--card:#1b2420;--tx:#e8eeea;--mut:#9aa8a1;--bd:#2c3833;--ac:#34c98a;--act:#06231a;--warn:#f0b35a}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:15px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+textarea,input[type=number]{width:100%;background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit}
+textarea{resize:vertical;min-height:64px}
+button{font:inherit;border:1px solid var(--bd);background:transparent;color:var(--tx);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.p{background:var(--ac);color:var(--act);border-color:var(--ac);font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{display:flex;gap:6px;margin-bottom:6px;align-items:flex-start}
+.msg b{min-width:22px;color:var(--mut);padding-top:8px}
+.imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.th{position:relative;width:72px;height:72px}
+.th img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}
+.th button{position:absolute;top:-6px;right:-6px;padding:0 6px;border-radius:50%;line-height:18px}
+.row{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--bd)}
+.row:first-child{border-top:0}
+.who{flex:1;min-width:0}
+.who small{display:block;color:var(--mut);overflow-wrap:anywhere}
+.done{color:var(--ac);font-size:12px}
+.note{font-size:12px;color:var(--mut);margin:6px 0 0}
+.warn{color:var(--warn)}
+.last{display:flex;gap:10px;align-items:flex-start}
+.last img{width:90px;border-radius:8px;border:1px solid var(--bd)}
+.last pre{white-space:pre-wrap;margin:0;font:inherit;flex:1}
+.set{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.set input{width:70px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--bd);border-radius:10px;padding:10px;cursor:pointer}
+.opt:has(input:checked){border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.opt input{margin-top:4px}
+.opt b{display:block}
+.opt small{color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+<h1>WA Blast Acak</h1>
+<p class="sub">Tiap klik Kirim memilih satu pesan dan satu gambar secara acak, lalu membuka chat WhatsApp kontak itu.</p>
+
+<section>
+<h2>Nomor pengirim</h2>
+<input type="text" id="snd1" placeholder="Nomor WhatsApp yang dipakai mengirim, misal 0812xxxx" style="width:100%;background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit">
+<p class="note">Satu nomor saja, sebagai pengingat nomor mana yang sedang login di WhatsApp Web.</p>
+</section>
+
+<section>
+<h2>Buka chat lewat</h2>
+<div class="opts">
+<label class="opt"><input type="radio" name="tgt" value="desktop"><span><b>WhatsApp Desktop</b><small>Paling cepat, tanpa tab browser dan tanpa reload. Perlu aplikasi WhatsApp Desktop terpasang dan sudah login.</small></span></label>
+<label class="opt"><input type="radio" name="tgt" value="web" checked><span><b>WhatsApp Web</b><small>Lewat browser (web.whatsapp.com), satu tab dipakai terus. Halaman memuat ulang tiap ganti kontak.</small></span></label>
+<label class="opt"><input type="radio" name="tgt" value="wame"><span><b>wa.me</b><small>Link universal, mengarahkan ke aplikasi atau WhatsApp Web sesuai perangkat.</small></span></label>
+</div>
+</section>
+
+<section>
+<h2>1. Daftar kontak</h2>
+<textarea id="contacts" rows="5" placeholder="Satu baris satu kontak, contoh:&#10;Budi, 081234567890&#10;Sari, +62 812-9999-0000&#10;08123456789"></textarea>
+<p class="note">Format 08xxx, 8xxx, 62xxx, dan +62 otomatis dirapikan. Nama boleh dikosongkan, nanti dipakai “Kak”.</p>
+</section>
+
+<section>
+<h2><span>2. Variasi pesan <span id="mc" style="color:var(--mut);font-weight:400"></span></span><button id="addm">+ Tambah</button></h2>
+<div id="msgs"></div>
+<p class="note">Pakai <code>{nama}</code> untuk nama penerima. Isi 5 sampai 10 versi dengan kalimat yang benar-benar berbeda, bukan cuma ganti satu kata.</p>
+</section>
+
+<section>
+<h2>3. Gambar (opsional)</h2>
+<input type="file" id="file" accept="image/*" multiple>
+<div class="imgs" id="imgs"></div>
+<p class="note">Gambar disalin ke clipboard saat Kirim diklik. Di chat WhatsApp, tekan paste (Ctrl+V di desktop atau WhatsApp Web), lalu kirim. Link wa.me tidak bisa melampirkan gambar secara langsung.</p>
+</section>
+
+<section>
+<div class="set">Jeda antar kirim: <input type="number" id="gap" min="0" max="300" value="15"> detik
+<label><input type="checkbox" id="rnd" checked> acak ±50%</label></div>
+</section>
+
+<section id="lastbox" style="display:none">
+<h2>Terakhir dikirim</h2>
+<div class="last"><img id="limg" alt=""><pre id="ltxt"></pre></div>
+<p style="margin:8px 0 0"><button id="recopy">Salin ulang gambar</button> <a id="dl" download="gambar.png"><button>Unduh gambar</button></a></p>
+</section>
+
+<section>
+<h2><span id="cnt">Kontak</span><button id="reset">Reset status</button></h2>
+<div id="list"></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let msgs=["","","","",""],imgs=[],sent={},lastM=-1,lastI=-1,cool=0,timer=null;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+try{const m=JSON.parse(store.get('wb_msgs')||'null');if(m&&m.length)msgs=m;sent=JSON.parse(store.get('wb_sent')||'{}');$('contacts').value=store.get('wb_contacts')||''}catch(e){}
+
+function norm(raw){let d=raw.replace(/\D/g,'');if(d.startsWith('0'))d='62'+d.slice(1);else if(d.startsWith('8'))d='62'+d;return d.length>=9?d:''}
+function parse(){const out=[],seen=new Set();
+for(const ln of $('contacts').value.split('\n')){const t=ln.trim();if(!t)continue;
+let name='',num='';const p=t.split(/[,;\t]/).map(s=>s.trim());
+if(p.length>=2){const i=p.findIndex(s=>/\d{8,}|\d[\d\s\-+()]{8,}/.test(s));num=norm(p[i>=0?i:1]);name=p.filter((_,j)=>j!==(i>=0?i:1)).join(' ')}
+else{const m=t.match(/\+?\d[\d\s\-()]{7,}/);if(m){num=norm(m[0]);name=t.replace(m[0],'').trim()}}
+if(num&&!seen.has(num)){seen.add(num);out.push({name,num})}}return out}
+
+function renderMsgs(){const box=$('msgs');box.innerHTML='';
+msgs.forEach((m,i)=>{const d=document.createElement('div');d.className='msg';
+d.innerHTML='<b>'+(i+1)+'</b>';const t=document.createElement('textarea');t.value=m;t.placeholder='Pesan versi '+(i+1);
+t.oninput=()=>{msgs[i]=t.value;store.set('wb_msgs',JSON.stringify(msgs));cntM()};
+const x=document.createElement('button');x.textContent='✕';x.onclick=()=>{msgs.splice(i,1);if(!msgs.length)msgs=[''];store.set('wb_msgs',JSON.stringify(msgs));renderMsgs()};
+d.append(t,x);box.append(d)});cntM();$('addm').disabled=msgs.length>=10}
+function cntM(){$('mc').textContent='('+msgs.filter(m=>m.trim()).length+' terisi, maks 10)'}
+$('addm').onclick=()=>{if(msgs.length<10){msgs.push('');renderMsgs()}};
+
+function toPng(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
+im.onload=()=>{const s=Math.min(1,1280/im.width),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;
+c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>res({blob:b,url:URL.createObjectURL(b)}),'image/png');URL.revokeObjectURL(u)};im.onerror=rej;im.src=u})}
+$('file').onchange=async e=>{for(const f of e.target.files){try{imgs.push(await toPng(f))}catch(x){}}e.target.value='';renderImgs()};
+function renderImgs(){const b=$('imgs');b.innerHTML='';imgs.forEach((g,i)=>{const d=document.createElement('div');d.className='th';
+d.innerHTML='<img src="'+g.url+'" alt="">';const x=document.createElement('button');x.textContent='✕';x.onclick=()=>{imgs.splice(i,1);renderImgs()};d.append(x);b.append(d)})}
+
+function pick(n,last){if(n<=1)return n?0:-1;let i;do{i=Math.floor(Math.random()*n)}while(i===last);return i}
+function copyImg(g){if(g&&navigator.clipboard&&window.ClipboardItem){navigator.clipboard.write([new ClipboardItem({'image/png':g.blob})]).catch(()=>{})}}
+
+function send(c){
+const valid=msgs.map((m,i)=>[m,i]).filter(x=>x[0].trim());
+if(!valid.length){alert('Isi minimal satu pesan dulu.');return}
+const k=pick(valid.length,valid.findIndex(x=>x[1]===lastM));const mi=valid[k][1];lastM=mi;
+const ii=pick(imgs.length,lastI);lastI=ii;const g=ii>=0?imgs[ii]:null;
+const text=msgs[mi].replaceAll('{nama}',c.name||'Kak');
+copyImg(g);
+const tg=document.querySelector('input[name=tgt]:checked').value,tx=encodeURIComponent(text);
+if(tg==='desktop'){const a=document.createElement('a');a.href='whatsapp://send?phone='+c.num+'&text='+tx;document.body.append(a);a.click();a.remove()}
+else{const url=tg==='web'?'https://web.whatsapp.com/send?phone='+c.num+'&text='+tx:'https://wa.me/'+c.num+'?text='+tx;
+if(waWin&&!waWin.closed){waWin.location.href=url}else{waWin=window.open(url,'wa_web')}}
+sent[c.num]={m:mi+1,i:ii>=0?ii+1:0,s:activeLabel()};store.set('wb_sent',JSON.stringify(sent));
+$('lastbox').style.display='block';$('ltxt').textContent=text;
+$('limg').style.display=g?'block':'none';if(g){$('limg').src=g.url;$('dl').href=g.url;$('recopy').onclick=()=>copyImg(g)}
+$('dl').style.display=g?'inline':'none';$('recopy').style.display=g?'inline':'none';
+let gap=+$('gap').value||0;if($('rnd').checked)gap=Math.round(gap*(0.5+Math.random()));
+startCool(gap);render()}
+function startCool(s){clearInterval(timer);cool=s;if(!s)return;timer=setInterval(()=>{cool--;if(cool<=0)clearInterval(timer);render()},1000)}
+
+function render(){const L=visible(),box=$('list');box.innerHTML='';
+const n=L.filter(c=>sent[c.num]).length;$('cnt').textContent='Kontak ('+n+'/'+L.length+' terkirim)';
+if(!L.length){box.innerHTML='<p class="note">Belum ada kontak valid.</p>';return}
+L.forEach(c=>{const r=document.createElement('div');r.className='row';
+const s=sent[c.num];
+r.innerHTML='<div class="who"><strong></strong><small></small></div>';
+r.querySelector('strong').textContent=c.name||'(tanpa nama)';
+r.querySelector('small').textContent='+'+c.num+(s?' · pesan #'+s.m+(s.i?', gambar #'+s.i:''):'');
+if(s){const d=document.createElement('span');d.className='done';d.textContent='✓ terkirim';r.append(d)}
+const b=document.createElement('button');b.className='p';b.textContent=s?'Kirim lagi':(cool>0?'Tunggu '+cool+'s':'Kirim');b.disabled=cool>0;b.onclick=()=>{if(s&&!confirm('Kontak ini sudah pernah dikirimi. Kirim lagi?'))return;send(c)};r.append(b);box.append(r)})}
+$('contacts').oninput=()=>{store.set('wb_contacts',$('contacts').value);render()};
+$('reset').onclick=()=>{sent={};store.set('wb_sent','{}');render()};
+let sender=store.get('wb_snd1')||'';
+$('snd1').value=sender;
+$('snd1').oninput=()=>{sender=$('snd1').value;store.set('wb_snd1',sender)};
+function activeLabel(){return sender.trim()}
+function visible(){return parse()}
+let waWin=null;
+document.querySelectorAll('input[name=tgt]').forEach(r=>{r.checked=r.value===(store.get('wb_tgt')||'web');r.onchange=()=>store.set('wb_tgt',r.value)});
+renderMsgs();render();
+</script>
+</body>
+</html>
